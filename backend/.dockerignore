@@ -1,0 +1,36 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+.env
+*.env
+.env.*
+
+# Django media/static files (if built locally)
+staticfiles/
+media/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+
+# System
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+*.vscode/
+.idea/
