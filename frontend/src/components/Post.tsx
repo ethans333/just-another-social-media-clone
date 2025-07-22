@@ -1,18 +1,24 @@
 import type { PostData } from "../types/models";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 import CommentSheet from "./CommentSheet";
 
 export default function Post({ post }: { post: PostData }) {
   return (
-    <div className="max-w-[900px] px-7 py-5 border rounded-lg">
-      <div className="flex gap-x-[5px] mb-3 items-center">
-        <img
-          src={post.user.profile_picture_url}
-          alt={`${post.user.username}'s profile`}
-          className="w-7 h-7 rounded-full object-cover mr-1"
-        />
-        <p className="font-bold">{post.user.username}</p>
+    <div className="max-w-[900px] px-7 py-5 border rounded-lg border-input">
+      <div className="flex gap-x-[5px] mt-1 mb-4 items-center">
+        <Link
+          to={`/account/${post.user.id}`}
+          className="flex items-center gap-x-2"
+        >
+          <img
+            src={post.user.profile_picture_url}
+            alt={`${post.user.username}'s profile`}
+            className="w-7 h-7 rounded-full object-cover mr-1"
+          />
+          <p className="font-bold">{post.user.username}</p>
+        </Link>
         <p className="text-xl flex items-center justify-center font-bold">
           &middot;
         </p>
@@ -22,7 +28,7 @@ export default function Post({ post }: { post: PostData }) {
       </div>
       <img
         src={post.image_url}
-        alt="Post image"
+        alt="No image found"
         className="w-full h-128 rounded object-cover mb-3"
       />
       <div className="flex gap-4 pt-3">

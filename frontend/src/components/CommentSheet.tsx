@@ -2,6 +2,7 @@ import api from "@/lib/api";
 import type { CommentData } from "@/types/models";
 import { formatDistanceToNow } from "date-fns";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -36,7 +37,7 @@ export default function CommentSheet({ postId }: { postId: number }) {
       <SheetContent>
         <SheetHeader>
           <SheetTitle>Comments</SheetTitle>
-          <SheetDescription className="max-h-[50vh] overflow-y-auto space-y-2">
+          <SheetDescription className="max-h-[50vh] overflow-y-auto space-y-5 p-2">
             {comments.map((comment) => (
               <Comment key={comment.id} comment={comment} />
             ))}
@@ -57,7 +58,12 @@ function Comment({ comment }: { comment: CommentData }) {
       />
       <div>
         <div className="flex items-center gap-2">
-          <p className="font-bold text-foreground">{comment.user.username}</p>
+          <Link
+            to={`/account/${comment.user.id}`}
+            className="font-bold text-foreground"
+          >
+            {comment.user.username}
+          </Link>
           <p className="text-sm text-muted-foreground">
             {formatDistanceToNow(new Date(comment.created_at), {
               addSuffix: true,
