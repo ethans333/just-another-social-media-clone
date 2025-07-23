@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: jasmc-frontend-container
+          image: jasmc-frontend-image:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

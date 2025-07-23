@@ -11,6 +11,7 @@ export default function Home() {
     async function fetchPosts() {
       try {
         const response = await api.get("/posts/");
+        console.log(import.meta.env.VITE_API_URL);
         setPosts(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);

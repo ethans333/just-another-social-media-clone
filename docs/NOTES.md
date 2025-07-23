@@ -58,3 +58,7 @@ Translator between your database and the outside world.
 ### View Set
 
 Defines logic for handling requests in one class. It handles CRUD operations for a model in once place.
+
+## Cluster IP
+
+## Stateful Sets
