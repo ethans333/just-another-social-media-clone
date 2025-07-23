@@ -11,7 +11,7 @@
 
 In `/frontend`
 
-```
+```bash
 npm run dev
 ```
 
@@ -21,6 +21,19 @@ Serving on `http://localhost:5173/`.
 
 In `/backend`
 
-```
+```bash
 docker compose up --build
+```
+
+## Testing Cluster Locally with Minikube
+
+In `/`
+
+```bash
+minikube start && \
+eval $(minikube docker-env) && \
+docker build -t jasmc-frontend-image:latest ./frontend --no-cache && \
+docker build -t jasmc-backend-image:latest ./backend --no-cache && \
+kubectl apply -f ./k8s && \
+xdg-open http://$(minikube ip)
 ```
