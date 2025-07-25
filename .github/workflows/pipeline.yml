@@ -43,6 +43,9 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: terraform apply -auto-approve tfplan
 
+      - name: Debug terraform output
+        run: terraform output
+
       - name: Extract ECR Repository URL
         id: get-output
         run: |
