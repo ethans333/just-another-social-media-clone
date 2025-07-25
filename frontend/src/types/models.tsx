@@ -24,3 +24,26 @@ export interface CommentData {
   content: string;
   created_at: string;
 }
+
+export interface AuthRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  user: UserData;
+  access: string;
+  refresh: string;
+}
+
+export interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+export interface PatchUserRequest {
+  bio?: string | null;
+  location?: string | null;
+  profile_picture_url?: string;
+}

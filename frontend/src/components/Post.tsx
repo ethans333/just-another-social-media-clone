@@ -1,8 +1,16 @@
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { PostData } from "../types/models";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, MessageCircle } from "lucide-react";
+import { Heart, MessageCircle, Ellipsis, Edit } from "lucide-react";
 import { Link } from "react-router-dom";
 import CommentSheet from "./CommentSheet";
+import api from "@/lib/api";
 
 export default function Post({ post }: { post: PostData }) {
   return (
@@ -25,6 +33,9 @@ export default function Post({ post }: { post: PostData }) {
         <p className="text-muted-foreground">
           {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
         </p>
+        <div className="ml-auto">
+          <PostDropDown postId={post.id} />
+        </div>
       </div>
       <img
         src={post.image_url}
@@ -41,5 +52,33 @@ export default function Post({ post }: { post: PostData }) {
       </p>
       <CommentSheet postId={post.id} />
     </div>
+  );
+}
+
+function PostDropDown({ postId }: { postId: number }) {
+  function deletePost() {
+    api.delete(`/posts/${postId}/`).catch((error) => {
+      console.error("Failed to delete post:", error);
+    });
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>
+        <Ellipsis className="w-5 h-5 cursor-pointer" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem className="cursor-pointer">
+          Edit Post
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="cursor-pointer text-destructive"
+          onClick={deletePost}
+        >
+          Delete Post
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -41,7 +41,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'api',
     'corsheaders',
+    'storages',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -138,3 +147,35 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 AUTH_USER_MODEL = 'api.User'
+
+USE_MINIO = os.getenv("USE_MINIO", "false").lower() == "true"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": os.getenv("AWS_ACCESS_KEY_ID"),
+            "secret_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+            "bucket_name": os.getenv("AWS_STORAGE_BUCKET_NAME"),
+            "region_name": os.getenv("AWS_S3_REGION_NAME", "us-east-1"),
+            "endpoint_url": os.getenv("AWS_S3_ENDPOINT_URL"),
+            "default_acl": "public-read",
+            "querystring_auth": False,
+            "file_overwrite": True,
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": os.getenv("AWS_ACCESS_KEY_ID"),
+            "secret_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+            "bucket_name": os.getenv("AWS_STORAGE_BUCKET_NAME"),
+            "region_name": os.getenv("AWS_S3_REGION_NAME", "us-east-1"),
+            "endpoint_url": os.getenv("AWS_S3_ENDPOINT_URL"),
+            "default_acl": "public-read",
+            "querystring_auth": False,
+            "file_overwrite": True,
+            "location": "static",
+        },
+    },
+}

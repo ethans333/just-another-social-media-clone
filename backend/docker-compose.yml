@@ -1,5 +1,4 @@
 version: '3.9'
-
 services:
   db:
     image: postgres:15
@@ -11,44 +10,55 @@ services:
       POSTGRES_PASSWORD: mypassword
     ports:
       - "5432:5432"
-
   web:
     build: .
     command: >
       sh -c "./wait-for-db.sh &&
-             python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+            python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
       - db
-    environment:
-      - DJANGO_SETTINGS_MODULE=jasmc.settings
-      - DEBUG=1
-      - DB_NAME=jasmcdb
-      - DB_USER=myuser
-      - DB_PASSWORD=mypassword
-      - DB_HOST=db
-      - DB_PORT=5432
+      - minio
+    env_file:
+      - .env
   populate:
     build: .
     command: >
       sh -c "./wait-for-db.sh &&
-             python manage.py populate_posts"
+            python manage.py populate_posts"
     volumes:
       - .:/app
     depends_on:
       - web
+    env_file:
+      - .env
+  minio:
+    image: quay.io/minio/minio:latest
+    ports:
+      - "9000:9000"    # MinIO API
+      - "9001:9001"    # MinIO Console UI
     environment:
-      - DJANGO_SETTINGS_MODULE=jasmc.settings
-      - DEBUG=1
-      - DB_NAME=jasmcdb
-      - DB_USER=myuser
-      - DB_PASSWORD=mypassword
-      - DB_HOST=db
-      - DB_PORT=5432
-
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+  minio-client:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+        sleep 5;
+        /minio-init.sh;
+        exit 0
+      "
+    volumes:
+      - ./minio-init.sh:/minio-init.sh
 volumes:
   postgres_data:
+  minio_data:

@@ -1,0 +1,42 @@
+# Terraform state
+*.tfstate
+*.tfstate.backup
+
+# Crash log files
+crash.log
+
+# CLI configuration
+.terraformrc
+terraform.rc
+
+# Terraform plugin directory
+.terraform/
+
+# Override files (often used for secrets)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+secrets.auto.tfvars
+
+# Local execution plans
+*.tfplan
+
+# Ignore backup files
+*.bak
+
+# VS Code
+.vscode/
+
+# macOS files
+.DS_Store
+
+# Linux file system junk
+*~
+
+# Python virtual envs (if used)
+.venv/
