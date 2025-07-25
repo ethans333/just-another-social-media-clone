@@ -69,11 +69,12 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build and Push Frontend
         run: |
-          FRONTEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr-repo }}/frontend:latest
+          FRONTEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr_repo }}/frontend:latest
 
           echo "Building and pushing frontend image to ECR: $FRONTEND_IMAGE_URI"
           docker build -t $FRONTEND_IMAGE_URI .
@@ -81,7 +82,7 @@ jobs:
 
       - name: Build and Push Backend
         run: |
-          BACKEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr-repo }}/backend:latest
+          BACKEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr_repo }}/backend:latest
 
           echo "Building and pushing backend image to ECR: $BACKEND_IMAGE_URI"
           docker build -t $BACKEND_IMAGE_URI -f Dockerfile.backend .
