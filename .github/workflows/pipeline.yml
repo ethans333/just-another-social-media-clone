@@ -9,7 +9,8 @@ jobs:
     name: Terraform Plan and Apply
     runs-on: ubuntu-latest
     outputs:
-      ecr_repo: ${{ steps.get-output.outputs.ecr_repo }}
+      ecr_frontend_repo_url: ${{ steps.get-output.outputs.ecr_frontend_repo_url }}
+      ecr_backend_repo_url: ${{ steps.get-output.outputs.ecr_backend_repo_url }}
 
     defaults:
       run:
@@ -47,8 +48,10 @@ jobs:
       - name: Extract ECR Repository URL
         id: get-output
         run: |
-          ECR_REPO=$(terraform output -raw ecr_repo)
-          echo "ecr_repo=$ECR_REPO" >> $GITHUB_OUTPUT
+          ECR_FRONTEND_REPO=$(terraform output -raw ecr_frontend_repo_url)
+          echo "ecr_frontend_repo_url=$ECR_FRONTEND_REPO" >> $GITHUB_OUTPUT
+          ECR_BACKEND_REPO=$(terraform output -raw ecr_backend_repo_url)
+          echo "ecr_backend_repo_url=$ECR_BACKEND_REPO" >> $GITHUB_OUTPUT
 
   docker:
     name: Build and Push Docker Image to ECR
@@ -73,10 +76,11 @@ jobs:
 
       - name: Build and Push Frontend & Backend
         env:
-          ECR_REPO: ${{ needs.terraform.outputs.ecr_repo }}
+          ECR_FRONTEND_REPO_URL: ${{ needs.terraform.outputs.ecr_frontend_repo_url }}
+          ECR_BACKEND_REPO_URL: ${{ needs.terraform.outputs.ecr_backend_repo_url }}
         run: |
-          FRONTEND_IMAGE_URI="$ECR_REPO/frontend:latest"
-          BACKEND_IMAGE_URI="$ECR_REPO/backend:latest"
+          FRONTEND_IMAGE_URI="$ECR_FRONTEND_REPO_URL:latest"
+          BACKEND_IMAGE_URI="$ECR_BACKEND_REPO_URL:latest"
 
           docker build -t $FRONTEND_IMAGE_URI ./frontend
           docker push $FRONTEND_IMAGE_URI
