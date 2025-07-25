@@ -1,4 +1,4 @@
-name: Terraform
+name: Terraform, ECR Push
 
 on:
   push:
@@ -11,6 +11,8 @@ jobs:
   terraform:
     name: Terraform Plan and Apply
     runs-on: ubuntu-latest
+    outputs:
+      ecr_repo: ${{ steps.get-output.outputs.ecr_repo }}
 
     defaults:
       run:
@@ -43,3 +45,45 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master'
         run: terraform apply -auto-approve tfplan
+
+      - name: Extract ECR Repository URL
+        id: get-output
+        run: |
+          ECR_REPO=$(terraform output -raw ecr_repo)
+          echo "ecr_repo=$ECR_REPO" >> $GITHUB_OUTPUT
+
+  docker:
+    name: Build and Push Docker Image to ECR
+    runs-on: ubuntu-latest
+    needs: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ needs.terraform.outputs.ecr-repo }}
+          IMAGE_TAG: latest
+        run: |
+          FRONTEND_IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}/frontend:${{ env.IMAGE_TAG }}
+          BACKEND_IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}/backend:${{ env.IMAGE_TAG }}
+
+          echo "Building and pushing frontend image to ECR: $FRONTEND_IMAGE_URI"
+          docker build -t $FRONTEND_IMAGE_URI .
+          docker push $FRONTEND_IMAGE_URI
+
+          echo "Building and pushing backend image to ECR: $BACKEND_IMAGE_URI"
+          docker build -t $BACKEND_IMAGE_URI -f Dockerfile.backend .
+          docker push $BACKEND_IMAGE_URI

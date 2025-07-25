@@ -14,3 +14,7 @@ provider "aws" {
 resource "aws_s3_bucket" "jasmc-image-upload" {
   bucket = "jasmc-image-upload-bucket"
 }
+
+resource "aws_ecr_repository" "jasmc-ecr-repo" {
+  name = "jasmc-ecr-repo"
+}
