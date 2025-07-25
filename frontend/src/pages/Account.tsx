@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { MapPin, Grid3x3, Plus, Edit } from "lucide-react";
+import { MapPin, Grid3x3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import api from "@/lib/api";

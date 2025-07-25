@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PostData } from "../types/models";
 import { formatDistanceToNow } from "date-fns";
-import { Heart, MessageCircle, Ellipsis, Edit } from "lucide-react";
+import { Heart, MessageCircle, Ellipsis } from "lucide-react";
 import { Link } from "react-router-dom";
 import CommentSheet from "./CommentSheet";
 import api from "@/lib/api";
