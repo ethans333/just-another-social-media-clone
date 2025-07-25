@@ -84,5 +84,5 @@ jobs:
 
           docker build -t $FRONTEND_IMAGE_URI ./frontend
           docker push $FRONTEND_IMAGE_URI
-          docker build -t $BACKEND_IMAGE_URI -f Dockerfile.backend ./backend
+          docker build -t $BACKEND_IMAGE_URI ./backend
           docker push $BACKEND_IMAGE_URI
