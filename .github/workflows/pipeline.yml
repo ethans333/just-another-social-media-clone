@@ -71,18 +71,17 @@ jobs:
       - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build and Push Docker Image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ needs.terraform.outputs.ecr-repo }}
-          IMAGE_TAG: latest
+      - name: Build and Push Frontend
         run: |
-          FRONTEND_IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}/frontend:${{ env.IMAGE_TAG }}
-          BACKEND_IMAGE_URI=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}/backend:${{ env.IMAGE_TAG }}
+          FRONTEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr-repo }}/frontend:latest
 
           echo "Building and pushing frontend image to ECR: $FRONTEND_IMAGE_URI"
           docker build -t $FRONTEND_IMAGE_URI .
           docker push $FRONTEND_IMAGE_URI
+
+      - name: Build and Push Backend
+        run: |
+          BACKEND_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ needs.terraform.outputs.ecr-repo }}/backend:latest
 
           echo "Building and pushing backend image to ECR: $BACKEND_IMAGE_URI"
           docker build -t $BACKEND_IMAGE_URI -f Dockerfile.backend .
