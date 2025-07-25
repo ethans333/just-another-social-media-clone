@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
   backend "s3" {
@@ -45,10 +45,9 @@ resource "aws_ecr_repository" "jasmc-ecr-backend-repo" {
 }
 
 module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "~> 5.0"
-  name    = "eks-vpc"
-  cidr    = "10.0.0.0/16"
+  source = "terraform-aws-modules/vpc/aws"
+  name   = "eks-vpc"
+  cidr   = "10.0.0.0/16"
 
   azs             = ["us-east-1a", "us-east-1b"]
   private_subnets = ["10.0.1.0/24", "10.0.2.0/24"]
@@ -66,7 +65,7 @@ module "vpc" {
 module "eks" {
   source             = "terraform-aws-modules/eks/aws"
   version            = "~> 21.0"
-  name               = vars.cluster_name
+  name               = var.cluster_name
   kubernetes_version = "1.33"
 
   endpoint_public_access = true
