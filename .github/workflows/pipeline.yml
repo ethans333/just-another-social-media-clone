@@ -2,9 +2,6 @@ name: Terraform, ECR Push
 
 on:
   push:
-    paths:
-      - "terraform/**"
-      - ".github/workflows/terraform.yml"
     branches:
       - master
 jobs:
