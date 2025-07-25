@@ -4,5 +4,5 @@ variable "region" {
 }
 
 variable "cluster_name" {
-  default = "my-eks-cluster"
+  default = "jasmc-eks-cluster"
 }
