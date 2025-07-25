@@ -40,3 +40,8 @@ secrets.auto.tfvars
 
 # Python virtual envs (if used)
 .venv/
+
+# Terraform directories
+.terraform/
+*.tfstate
+*.tfstate.*
