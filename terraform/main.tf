@@ -18,7 +18,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "jasmc-image-upload" {
-  bucket = vars.image_upload_bucket_name
+  bucket = var.image_upload_bucket_name
 
   tags = {
     Environment = "dev"
