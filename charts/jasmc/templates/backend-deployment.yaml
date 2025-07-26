@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: jasmc-backend-container
-          image: jasmc-backend-image:latest
+          image: "{{ .Values.backend-image.repository }}:{{ .Values.backend-image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:

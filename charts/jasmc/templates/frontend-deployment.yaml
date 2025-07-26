@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: jasmc-frontend-container
-          image: jasmc-frontend-image:latest
+          image: "{{ .Values.frontend-image.repository }}:{{ .Values.frontend-image.tag }}"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80

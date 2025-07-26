@@ -18,7 +18,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "jasmc-image-upload" {
-  bucket = "jasmc-image-upload-bucket"
+  bucket = vars.image_upload_bucket_name
 
   tags = {
     Environment = "dev"
@@ -27,8 +27,9 @@ resource "aws_s3_bucket" "jasmc-image-upload" {
 }
 
 resource "aws_ecr_repository" "jasmc-ecr-frontend-repo" {
-  name         = "jasmc-ecr-frontend-repo"
-  force_delete = true
+  name                 = var.frontend_ecr_repo_name
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   tags = {
     Environment = "dev"
@@ -37,7 +38,9 @@ resource "aws_ecr_repository" "jasmc-ecr-frontend-repo" {
 }
 
 resource "aws_ecr_repository" "jasmc-ecr-backend-repo" {
-  name = "jasmc-ecr-backend-repo"
+  name                 = var.backend_ecr_repo_name
+  image_tag_mutability = "MUTABLE"
+  force_delete         = true
 
   tags = {
     Environment = "dev"
@@ -48,7 +51,7 @@ resource "aws_ecr_repository" "jasmc-ecr-backend-repo" {
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
-  name    = "eks-vpc"
+  name    = var.vpc_name
   cidr    = "10.0.0.0/16"
 
   azs             = ["us-east-1a", "us-east-1b"]

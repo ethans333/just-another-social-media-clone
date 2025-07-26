@@ -1,0 +1,7 @@
+backend-image:
+  repository: "jasmc-backend-image"
+  tag: "latest"
+
+frontend-image:
+  repository: "jasmc-frontend-image"
+  tag: "latest"

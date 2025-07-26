@@ -9,3 +9,7 @@ output "ecr_frontend_repo_url" {
 output "ecr_backend_repo_url" {
   value = aws_ecr_repository.jasmc-ecr-backend-repo.repository_url
 }
+
+output "eks_cluster_name" {
+  value = module.eks.cluster_id
+}

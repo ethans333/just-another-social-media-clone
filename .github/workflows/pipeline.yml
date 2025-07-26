@@ -11,6 +11,7 @@ jobs:
     outputs:
       ecr_frontend_repo_url: ${{ steps.get-output.outputs.ecr_frontend_repo_url }}
       ecr_backend_repo_url: ${{ steps.get-output.outputs.ecr_backend_repo_url }}
+      eks_cluster_name: ${{ steps.get-output.outputs.eks_cluster_name }}
 
     defaults:
       run:
@@ -45,13 +46,17 @@ jobs:
         if: github.ref == 'refs/heads/master'
         run: terraform apply -auto-approve tfplan
 
-      - name: Extract ECR Repository URL
+      - name: Get Terraform Outputs
         id: get-output
         run: |
           ECR_FRONTEND_REPO=$(terraform output -raw ecr_frontend_repo_url)
           echo "ecr_frontend_repo_url=$ECR_FRONTEND_REPO" >> $GITHUB_OUTPUT
+
           ECR_BACKEND_REPO=$(terraform output -raw ecr_backend_repo_url)
           echo "ecr_backend_repo_url=$ECR_BACKEND_REPO" >> $GITHUB_OUTPUT
+
+          EKS_CLUSTER_NAME=$(terraform output -raw eks_cluster_name)
+          echo "eks_cluster_name=$EKS_CLUSTER_NAME" >> $GITHUB_OUTPUT
 
   docker:
     name: Build and Push Docker Image to ECR
@@ -86,3 +91,44 @@ jobs:
           docker push $FRONTEND_IMAGE_URI
           docker build -t $BACKEND_IMAGE_URI ./backend
           docker push $BACKEND_IMAGE_URI
+
+  k8s:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: [terraform, docker]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: "latest"
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+
+      - name: Update kubeconfig
+        run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ needs.terraform.outputs.eks_cluster_name }}
+
+      - name: Deploy via Helm
+        env:
+          FRONTEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_frontend_repo_url }}
+          BACKEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_backend_repo_url }}
+          FRONTEND_IMAGE_TAG: latest
+          BACKEND_IMAGE_TAG: latest
+        run: |
+          helm upgrade --install jasmc ./charts/jasmc \
+            --namespace default \
+            --set frontend-image.repository=$FRONTEND_IMAGE_NAME \
+            --set frontend-image.tag=$FRONTEND_IMAGE_TAG \
+            --set backend-image.repository=$BACKEND_IMAGE_NAME \
+            --set backend-image.tag=$BACKEND_IMAGE_TAG

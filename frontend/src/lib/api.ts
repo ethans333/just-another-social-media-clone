@@ -5,44 +5,41 @@ const api = axios.create({
   withCredentials: true,
 });
 
+export const noAuthApi = axios.create({ baseURL: "/api" });
+
 setToken(localStorage.getItem("accessToken") || "");
 
 api.interceptors.response.use(
   (res) => res,
-  (err) => {
+  async (err) => {
     const originalRequest = err.config;
 
     if (err.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      return refreshToken()
-        .then((response) => {
-          console.log(response);
-          localStorage.setItem("accessToken", response.data.access);
-          setToken(response.data.access);
-
-          originalRequest.headers[
-            "Authorization"
-          ] = `Bearer ${response.data.access}`;
-
-          return api(originalRequest);
-        })
-        .catch((refreshError) => {
-          console.error("Refresh token failed:", refreshError);
-          window.location.href = "/login";
+      try {
+        const response = await noAuthApi.post("/token/refresh/", {
+          refresh: localStorage.getItem("refreshToken"),
         });
+
+        const newAccess = response.data.access;
+        localStorage.setItem("accessToken", newAccess);
+        setToken(newAccess);
+
+        originalRequest.headers["Authorization"] = `Bearer ${newAccess}`;
+
+        return api(originalRequest); // retry original request
+      } catch (refreshError) {
+        // window.location.href = "/login";
+        // localStorage.removeItem("accessToken");
+        // localStorage.removeItem("refreshToken");
+        return Promise.reject(refreshError);
+      }
     }
 
-    // handle global error
     return Promise.reject(err);
   }
 );
-
-function refreshToken() {
-  return api.post("/token/refresh/", {
-    refresh: localStorage.getItem("refreshToken"),
-  });
-}
 
 function setToken(token: string) {
   api.defaults.headers.common["Authorization"] = `Bearer ${token}`;

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { AuthRequest, AuthResponse } from "@/types/models";
-import api from "@/lib/api";
+import { noAuthApi } from "@/lib/api";
 import type { AxiosError, AxiosResponse } from "axios";
 
 export default function Register() {
@@ -28,7 +28,7 @@ export default function Register() {
       password,
     };
 
-    api
+    noAuthApi
       .post("/register/", request)
       .then((response: AxiosResponse<AuthResponse>) => {
         localStorage.setItem("accessToken", response.data.access);
