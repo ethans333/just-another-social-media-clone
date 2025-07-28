@@ -57,9 +57,14 @@ export default function Post({ post }: { post: PostData }) {
 
 function PostDropDown({ postId }: { postId: number }) {
   function deletePost() {
-    api.delete(`/posts/${postId}/`).catch((error) => {
-      console.error("Failed to delete post:", error);
-    });
+    api
+      .delete(`/posts/${postId}/`)
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Failed to delete post:", error);
+      });
   }
 
   return (

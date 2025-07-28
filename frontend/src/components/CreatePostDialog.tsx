@@ -21,11 +21,18 @@ export default function CreatePostDialog() {
     const form = event.currentTarget;
     const formData = new FormData(form);
 
-    api.post("/posts/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
+    api
+      .post("/posts/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Failed to create post:", error);
+      });
   }
 
   return (

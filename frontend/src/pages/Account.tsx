@@ -71,7 +71,9 @@ export default function Account({ isMe = false }: { isMe?: boolean }) {
           <div className="w-full max-w-2xl mx-auto pt-10">
             <div className="flex items-center space-x-2">
               <Grid3x3 className="h-5 w-5" />
-              <h2 className="text-lg font-semibold">Posts</h2>
+              <h2 className="text-lg font-semibold">{`${
+                isMe ? "My" : `${user.username}'s`
+              } Posts`}</h2>
             </div>
             <div className="grid grid-cols-1 gap-10 w-full max-w-xl mx-auto py-10">
               {posts && posts.length > 0 ? (

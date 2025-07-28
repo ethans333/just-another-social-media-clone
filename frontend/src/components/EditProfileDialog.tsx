@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { PatchUserRequest, UserData } from "@/types/models";
+import type { UserData } from "@/types/models";
 import { Edit } from "lucide-react";
 import api from "@/lib/api";
 
@@ -19,15 +19,19 @@ export default function EditProfileDialog({ user }: { user: UserData }) {
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    const updatedData: PatchUserRequest = {
-      bio: formData.get("bio") as string,
-      location: formData.get("location") as string,
-      profile_picture_url: formData.get("profile_picture_url") as string,
-    };
 
-    api.patch(`/users/${user.id}/`, updatedData).catch((error) => {
-      console.error("Failed to update profile:", error);
-    });
+    api
+      .patch(`/users/${user.id}/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then(() => {
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.error("Failed to update profile:", error);
+      });
   }
 
   return (
@@ -56,11 +60,8 @@ export default function EditProfileDialog({ user }: { user: UserData }) {
               <Input name="location" defaultValue={user.location!} />
             </div>
             <div className="grid gap-3">
-              <Label>Picture Url</Label>
-              <Input
-                name="profile_picture_url"
-                defaultValue={user.profile_picture_url!}
-              />
+              <Label>Image File</Label>
+              <Input name="profile_picture" type="file" />
             </div>
           </div>
           <DialogFooter>

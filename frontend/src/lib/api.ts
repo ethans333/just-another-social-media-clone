@@ -5,7 +5,10 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const noAuthApi = axios.create({ baseURL: "/api" });
+export const noAuthApi = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: false,
+});
 
 setToken(localStorage.getItem("accessToken") || "");
 
@@ -30,9 +33,9 @@ api.interceptors.response.use(
 
         return api(originalRequest); // retry original request
       } catch (refreshError) {
-        // window.location.href = "/login";
-        // localStorage.removeItem("accessToken");
-        // localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         return Promise.reject(refreshError);
       }
     }

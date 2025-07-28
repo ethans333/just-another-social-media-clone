@@ -6,12 +6,11 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from .utils import upload_image
 from .models import User, Post, Comment
 from .serializers import PostSerializer, UserSerializer, CommentSerializer, CustomTokenObtainPairSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
-from django.core.files.storage import default_storage
-from django.core.files.base import ContentFile
-from django.conf import settings
 from typing import cast
 
 
@@ -24,15 +23,10 @@ class PostViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         file_obj = request.FILES.get('image')
 
-        if not file_obj:
-            return Response({'error': 'No image provided.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        file_path = default_storage.save(
-            f'post_images/{file_obj.name}', ContentFile(file_obj.read()))
-        file_url = default_storage.url(file_path)
-
-        if settings.USE_MINIO:
-            file_url = file_url.replace("minio", "localhost")
+        try:
+            file_url = upload_image(file_obj, 'post_images')
+        except ValueError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         data = request.data.copy()
         data['image_url'] = file_url
@@ -57,6 +51,7 @@ class PostViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_permissions(self):
         if self.action == 'create':
@@ -68,6 +63,30 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         posts = user.posts.all().order_by('-created_at')
         serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    def partial_update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+
+        file_obj = request.FILES.get('profile_picture')
+        data = request.data.copy()
+
+        if file_obj:
+            try:
+                file_url = upload_image(file_obj, 'profile_pictures')
+            except ValueError as e:
+                return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            file_url = data.get('profile_picture_url',
+                                instance.profile_picture_url)
+
+        data['profile_picture_url'] = file_url
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
         return Response(serializer.data)
 
 
