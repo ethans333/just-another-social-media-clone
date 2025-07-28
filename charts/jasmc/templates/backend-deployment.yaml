@@ -12,9 +12,18 @@ spec:
       labels:
         app: backend-app
     spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox
+          command:
+            [
+              "sh",
+              "-c",
+              "until nc -z postgres-service 5432; do echo waiting for postgres; sleep 2; done",
+            ]
       containers:
         - name: jasmc-backend-container
-          image: "{{ .Values.backend-image.repository }}:{{ .Values.backend-image.tag }}"
+          image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
@@ -39,3 +48,19 @@ spec:
               value: "postgres-service"
             - name: DB_PORT
               value: "5432"
+            - name: USE_MINIO
+              value: "false"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-creds
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-creds
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_STORAGE_BUCKET_NAME
+              value: "jasmc-image-upload-bucket"
+            - name: AWS_S3_REGION_NAME
+              value: "us-east-1"

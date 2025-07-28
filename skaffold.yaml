@@ -1,0 +1,29 @@
+apiVersion: skaffold/v4beta13
+kind: Config
+metadata:
+  name: jasmc-app
+build:
+  local:
+    push: false
+  tagPolicy:
+    envTemplate:
+      template: latest
+  artifacts:
+    - image: frontend
+      context: ./frontend
+      docker:
+        dockerfile: Dockerfile
+    - image: backend
+      context: ./backend
+      docker:
+        dockerfile: Dockerfile
+deploy:
+  helm:
+    releases:
+      - name: jasmc
+        chartPath: ./charts/jasmc/
+        setValueTemplates:
+          image.frontend.repository: "{{.IMAGE_NAME_frontend}}"
+          image.frontend.tag: "{{.IMAGE_TAG_frontend}}"
+          image.backend.repository: "{{.IMAGE_NAME_backend}}"
+          image.backend.tag: "{{.IMAGE_TAG_backend}}"

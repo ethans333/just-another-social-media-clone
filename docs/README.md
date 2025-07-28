@@ -27,13 +27,24 @@ docker compose up --build
 
 ## Testing Cluster Locally with Minikube
 
+### Setup
+
+Start Minikube and configure aws credentials.
+
+```bash
+minikube start && \
+eval $(minikube docker-env) \
+kubectl create secret generic aws-creds \
+  --from-literal=AWS_ACCESS_KEY_ID=$(aws configure get aws_access_key_id) \
+  --from-literal=AWS_SECRET_ACCESS_KEY=$(aws configure get aws_secret_access_key)
+```
+
+### Running
+
 In `/`
 
 ```bash
 minikube start && \
-eval $(minikube docker-env) && \
-docker build -t jasmc-frontend-image:latest ./frontend --no-cache && \
-docker build -t jasmc-backend-image:latest ./backend --no-cache && \
-kubectl apply -f ./k8s && \
+skaffold dev && \
 xdg-open http://$(minikube ip)
 ```
