@@ -29,6 +29,9 @@ deploy:
           image.backend.tag: "{{.IMAGE_TAG_backend}}"
 profiles:
   - name: pipeline
-    build:
-      local:
-        push: true
+    deploy:
+      helm:
+        releases:
+          - name: jasmc
+            setValues:
+              postgres.storageClass: gp2

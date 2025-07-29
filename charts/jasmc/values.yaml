@@ -5,3 +5,5 @@ image:
   backend:
     repository: ""
     tag: ""
+postgres:
+  storageClass: standard
