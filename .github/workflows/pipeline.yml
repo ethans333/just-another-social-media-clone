@@ -110,6 +110,6 @@ jobs:
 
       - name: Deploy with Skaffold
         run: |
-          skaffold deploy -p pipeline
-            --image-name-frontend=${{ needs.terraform.outputs.ecr_frontend_repo_url }} \
-            --image-name-backend=${{ needs.terraform.outputs.ecr_backend_repo_url }} \
+          skaffold deploy -p pipeline \
+            --images frontend=${{ needs.terraform.outputs.ecr_frontend_repo_url }}:latest \
+            --images backend=${{ needs.terraform.outputs.ecr_backend_repo_url }}:latest
