@@ -33,5 +33,6 @@ profiles:
       helm:
         releases:
           - name: jasmc
+            chartPath: ./charts/jasmc/
             setValues:
               postgres.storageClass: gp2
