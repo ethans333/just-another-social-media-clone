@@ -98,4 +98,4 @@ jobs:
           FRONTEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_frontend_repo_url }}
           BACKEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_backend_repo_url }}
         run: |
-          skaffold run -p pipeline
+          skaffold run -f skaffold.pipeline.yaml

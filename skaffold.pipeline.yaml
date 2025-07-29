@@ -4,20 +4,19 @@ metadata:
   name: jasmc-app
 build:
   local:
-    push: false
+    push: true
   tagPolicy:
     envTemplate:
       template: latest
-  artifacts:
-    - image: frontend
-      context: ./frontend
-      docker:
-        dockerfile: Dockerfile
-    - image: backend
-      context: ./backend
-      docker:
-        dockerfile: Dockerfile
-deploy:
+    artifacts:
+      - image: ${FRONTEND_IMAGE_NAME}
+        context: ./frontend
+        docker:
+          dockerfile: Dockerfile
+      - image: ${BACKEND_IMAGE_NAME}
+        context: ./backend
+        docker:
+          dockerfile: Dockerfile
   helm:
     releases:
       - name: jasmc
