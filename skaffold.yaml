@@ -27,3 +27,21 @@ deploy:
           image.frontend.tag: "{{.IMAGE_TAG_frontend}}"
           image.backend.repository: "{{.IMAGE_NAME_backend}}"
           image.backend.tag: "{{.IMAGE_TAG_backend}}"
+
+profiles:
+  - name: pipeline
+    build:
+      local:
+        push: true
+    tagPolicy:
+      envTemplate:
+        template: latest
+    artifacts:
+      - image: ${FRONTEND_IMAGE_NAME}
+        context: ./frontend
+        docker:
+          dockerfile: Dockerfile
+      - image: ${BACKEND_IMAGE_NAME}
+        context: ./backend
+        docker:
+          dockerfile: Dockerfile
