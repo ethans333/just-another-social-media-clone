@@ -95,28 +95,41 @@ module "eks" {
   }
 }
 
+# OIDC provider (provided by your EKS module)
+data "aws_iam_openid_connect_provider" "oidc" {
+  arn = module.eks.oidc_provider_arn
+}
+
+# IAM Assume Role Policy for EBS CSI Driver with OIDC
+data "aws_iam_policy_document" "ebs_csi_assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [data.aws_iam_openid_connect_provider.oidc.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "${replace(data.aws_iam_openid_connect_provider.oidc.url, "https://", "")}:sub"
+      values   = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+    }
+  }
+}
+
 # IAM Role for EBS CSI Driver
 resource "aws_iam_role" "ebs_csi_driver" {
-  name = "${var.cluster_name}-ebs-csi-driver-role"
-
+  name               = "${var.cluster_name}-ebs-csi-driver-role"
   assume_role_policy = data.aws_iam_policy_document.ebs_csi_assume_role_policy.json
+
   tags = {
     Environment = "dev"
     Terraform   = "true"
   }
 }
 
-data "aws_iam_policy_document" "ebs_csi_assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["eks.amazonaws.com"]
-    }
-  }
-}
-
+# Attach Managed EBS CSI Policy
 resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
   role       = aws_iam_role.ebs_csi_driver.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
@@ -126,7 +139,7 @@ resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name             = module.eks.cluster_name
   addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.30.0-eksbuild.1" # Optional: omit to use latest compatible
+  addon_version            = "v1.30.0-eksbuild.1" # optional
   resolve_conflicts        = "OVERWRITE"
   service_account_role_arn = aws_iam_role.ebs_csi_driver.arn
 
