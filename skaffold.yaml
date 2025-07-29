@@ -34,5 +34,10 @@ profiles:
         releases:
           - name: jasmc
             chartPath: ./charts/jasmc/
+            setValueTemplates:
+              image.frontend.repository: "{{.IMAGE_NAME_frontend}}"
+              image.frontend.tag: "{{.IMAGE_TAG_frontend}}"
+              image.backend.repository: "{{.IMAGE_NAME_backend}}"
+              image.backend.tag: "{{.IMAGE_TAG_backend}}"
             setValues:
               postgres.storageClass: gp2
