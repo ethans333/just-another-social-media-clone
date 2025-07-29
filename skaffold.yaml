@@ -9,11 +9,11 @@ build:
     envTemplate:
       template: latest
   artifacts:
-    - image: ${FRONTEND_IMAGE_NAME}
+    - image: frontend
       context: ./frontend
       docker:
         dockerfile: Dockerfile
-    - image: ${BACKEND_IMAGE_NAME}
+    - image: backend
       context: ./backend
       docker:
         dockerfile: Dockerfile
