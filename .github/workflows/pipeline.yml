@@ -94,7 +94,7 @@ jobs:
         run: aws eks --region ${{ vars.AWS_REGION }} update-kubeconfig --name ${{ needs.terraform.outputs.eks_cluster_name }}
 
       - name: Build, Push and Deploy with Skaffold
-        run: |
-          skaffold run -p pipeline
-            --image-name-frontend=${{ needs.terraform.outputs.ecr_frontend_repo_url }} \
-            --image-name-backend=${{ needs.terraform.outputs.ecr_backend_repo_url }} \
+        env:
+          FRONTEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_frontend_repo_url }}
+          BACKEND_IMAGE_NAME: ${{ needs.terraform.outputs.ecr_backend_repo_url }}
+        run: skaffold run -p pipeline
