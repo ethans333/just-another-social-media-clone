@@ -8,15 +8,17 @@ build:
   tagPolicy:
     envTemplate:
       template: latest
-    artifacts:
-      - image: ${FRONTEND_IMAGE_NAME}
-        context: ./frontend
-        docker:
-          dockerfile: Dockerfile
-      - image: ${BACKEND_IMAGE_NAME}
-        context: ./backend
-        docker:
-          dockerfile: Dockerfile
+  artifacts:
+    - image: ${FRONTEND_IMAGE_NAME}
+      context: ./frontend
+      docker:
+        dockerfile: Dockerfile
+    - image: ${BACKEND_IMAGE_NAME}
+      context: ./backend
+      docker:
+        dockerfile: Dockerfile
+
+deploy:
   helm:
     releases:
       - name: jasmc
